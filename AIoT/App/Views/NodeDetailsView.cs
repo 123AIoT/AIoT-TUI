@@ -1,0 +1,333 @@
+using Terminal.Gui;
+using Opc.Ua;
+using AIoT.OpcUa.Models;
+using AIoT.App.Themes;
+using AIoT.Utilities;
+using ThemeManager = AIoT.App.Themes.ThemeManager;
+
+namespace AIoT.App.Views;
+
+/// <summary>
+/// Panel showing detailed attributes of the selected node.
+/// Uses Terminal.Gui v2 layout features for cleaner presentation.
+/// </summary>
+public class NodeDetailsView : FrameView
+{
+    private readonly Label _detailsLabel;
+    private readonly Button _copyButton;
+    private AIoT.OpcUa.NodeBrowser? _nodeBrowser;
+    private NodeId? _currentNodeId;
+    private Logger? _logger;
+    private CancellationTokenSource? _copyOperationCts;
+
+    public NodeDetailsView()
+    {
+        Title = " Node Details ";
+        CanFocus = true;
+
+        // Apply theme styling
+        var theme = ThemeManager.Current;
+        BorderStyle = theme.FrameLineStyle;
+
+        // Copy button in top-right corner of the frame
+        _copyButton = new Button
+        {
+            Text = "Copy",
+            X = Pos.AnchorEnd(8),
+            Y = 0,
+            Height = 1,
+            ShadowStyle = ShadowStyle.None,
+            ColorScheme = theme.ButtonColorScheme,
+            Enabled = false
+        };
+        _copyButton.Accepting += OnCopyClicked;
+
+        _detailsLabel = new Label
+        {
+            X = 1,
+            Y = 0,
+            Width = Dim.Fill(9), // Leave space for Copy button
+            Height = Dim.Fill(),
+            Text = "",
+            TextAlignment = Alignment.Start,
+            ColorScheme = new ColorScheme
+            {
+                Normal = new Terminal.Gui.Attribute(theme.MutedText, theme.Background)
+            }
+        };
+
+        // Subscribe to theme changes
+        ThemeManager.ThemeChanged += OnThemeChanged;
+
+        Add(_copyButton);
+        Add(_detailsLabel);
+    }
+
+    private void OnThemeChanged(AppTheme theme)
+    {
+        Application.Invoke(() =>
+        {
+            // Update copy button styling
+            _copyButton.ColorScheme = theme.ButtonColorScheme;
+
+            // When showing empty state, keep muted color
+            if (_detailsLabel.Text == "" ||
+                _detailsLabel.Text == "Not connected")
+            {
+                _detailsLabel.ColorScheme = new ColorScheme
+                {
+                    Normal = new Terminal.Gui.Attribute(theme.MutedText, theme.Background)
+                };
+            }
+            else
+            {
+                _detailsLabel.ColorScheme = new ColorScheme
+                {
+                    Normal = new Terminal.Gui.Attribute(theme.Foreground, theme.Background)
+                };
+            }
+            SetNeedsLayout();
+        });
+    }
+
+    /// <summary>
+    /// Initializes the view with the node browser for attribute reading.
+    /// </summary>
+    /// <param name="nodeBrowser">The node browser to use for reading attributes.</param>
+    /// <param name="logger">Optional logger for error reporting.</param>
+    public void Initialize(AIoT.OpcUa.NodeBrowser nodeBrowser, Logger? logger = null)
+    {
+        _nodeBrowser = nodeBrowser;
+        _logger = logger;
+    }
+
+    public async Task ShowNodeByIdAsync(NodeId? nodeId)
+    {
+        if (nodeId == null || _nodeBrowser == null)
+        {
+            _currentNodeId = null;
+            Application.Invoke(() =>
+            {
+                _detailsLabel.Text = "Select a node to view details";
+                _copyButton.Enabled = false;
+                SetMutedColor();
+            });
+            return;
+        }
+
+        _currentNodeId = nodeId;
+        var attrs = await _nodeBrowser.GetNodeAttributesAsync(nodeId);
+
+        Application.Invoke(() =>
+        {
+            if (attrs == null)
+            {
+                _detailsLabel.Text = $"NodeId: {nodeId}\nFailed to read attributes";
+                _copyButton.Enabled = false;
+                SetNormalColor();
+                return;
+            }
+
+            var line1Parts = new List<string>();
+            if (attrs.NodeClass == NodeClass.Variable)
+            {
+                line1Parts.Add($"Value: {attrs.Value ?? "N/A"}");
+                line1Parts.Add($"Type: {attrs.DataType ?? "N/A"}");
+                line1Parts.Add($"Access: {attrs.AccessLevelString}");
+            }
+            else
+            {
+                line1Parts.Add($"Name: {attrs.DisplayName ?? attrs.BrowseName ?? "N/A"}");
+                line1Parts.Add($"Class: {attrs.NodeClass}");
+            }
+            line1Parts.Add($"NodeId: {attrs.NodeId}");
+
+            var desc = !string.IsNullOrEmpty(attrs.Description) ? attrs.Description : "";
+            var line2 = $"Desc: {desc}";
+
+            _detailsLabel.Text = string.Join("  │  ", line1Parts) + "\n" + line2;
+            _copyButton.Enabled = true;
+            SetNormalColor();
+        });
+    }
+
+    public async Task ShowNodeAsync(BrowsedNode? node)
+    {
+        if (node == null || _nodeBrowser == null)
+        {
+            _currentNodeId = null;
+            Application.Invoke(() =>
+            {
+                _detailsLabel.Text = "";
+                _copyButton.Enabled = false;
+                SetMutedColor();
+            });
+            return;
+        }
+
+        _currentNodeId = node.NodeId;
+        var attrs = await _nodeBrowser.GetNodeAttributesAsync(node.NodeId);
+
+        Application.Invoke(() =>
+        {
+            if (attrs == null)
+            {
+                _detailsLabel.Text = $"NodeId: {node.NodeId}\nFailed to read attributes";
+                _copyButton.Enabled = false;
+                SetNormalColor();
+                return;
+            }
+
+            // Line 1: Value (with type/access info for variables)
+            var line1Parts = new List<string>();
+            if (attrs.NodeClass == NodeClass.Variable)
+            {
+                line1Parts.Add($"Value: {attrs.Value ?? "N/A"}");
+                line1Parts.Add($"Type: {attrs.DataType ?? "N/A"}");
+                line1Parts.Add($"Access: {attrs.AccessLevelString}");
+            }
+            else
+            {
+                line1Parts.Add($"Name: {attrs.DisplayName ?? attrs.BrowseName ?? "N/A"}");
+                line1Parts.Add($"Class: {attrs.NodeClass}");
+            }
+            line1Parts.Add($"NodeId: {attrs.NodeId}");
+
+            // Line 2: Description
+            var desc = !string.IsNullOrEmpty(attrs.Description) ? attrs.Description : "";
+            var line2 = $"Desc: {desc}";
+
+            _detailsLabel.Text = string.Join("  │  ", line1Parts) + "\n" + line2;
+            _copyButton.Enabled = true;
+            SetNormalColor();
+        });
+    }
+
+    public void Clear()
+    {
+        _currentNodeId = null;
+        _detailsLabel.Text = "Not connected";
+        _copyButton.Enabled = false;
+        SetMutedColor();
+    }
+
+    private void SetMutedColor()
+    {
+        var theme = ThemeManager.Current;
+        _detailsLabel.ColorScheme = new ColorScheme
+        {
+            Normal = new Terminal.Gui.Attribute(theme.MutedText, theme.Background)
+        };
+    }
+
+    private void SetNormalColor()
+    {
+        var theme = ThemeManager.Current;
+        _detailsLabel.ColorScheme = new ColorScheme
+        {
+            Normal = new Terminal.Gui.Attribute(theme.Foreground, theme.Background)
+        };
+    }
+
+    private static string FormatValueRank(int? valueRank)
+    {
+        if (valueRank == null) return "N/A";
+        return valueRank switch
+        {
+            -3 => "ScalarOrOneDimension",
+            -2 => "Any",
+            -1 => "Scalar",
+            0 => "OneOrMoreDimensions",
+            1 => "OneDimension",
+            _ => $"{valueRank}D Array"
+        };
+    }
+
+    private static string TruncateString(string str, int maxLength)
+    {
+        if (string.IsNullOrEmpty(str))
+            return string.Empty;
+        if (str.Length <= maxLength)
+            return str;
+        return str[..(maxLength - 3)] + "...";
+    }
+
+    private async void OnCopyClicked(object? sender, CommandEventArgs e)
+    {
+        if (_currentNodeId == null || _nodeBrowser == null)
+            return;
+
+        // Cancel any previous copy operation to avoid race conditions
+        _copyOperationCts?.Cancel();
+        _copyOperationCts = new CancellationTokenSource();
+        var cancellationToken = _copyOperationCts.Token;
+
+        var originalText = _copyButton.Text;
+
+        try
+        {
+            _copyButton.Text = "...";
+            _copyButton.Enabled = false;
+
+            var attributes = await _nodeBrowser.ReadAllNodeAttributesAsync(_currentNodeId);
+
+            // Check if operation was cancelled
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            Application.Invoke(() =>
+            {
+                if (attributes == null || attributes.Count == 0)
+                {
+                    _logger?.Warning("Failed to read node attributes for copy");
+                    ShowCopyResult("Err", originalText);
+                    return;
+                }
+
+                var formatted = NodeAttributeFormatter.Format(attributes);
+                var success = Clipboard.TrySetClipboardData(formatted);
+
+                if (success)
+                {
+                    ShowCopyResult("OK", originalText);
+                }
+                else
+                {
+                    _logger?.Warning("Failed to copy node attributes to clipboard");
+                    ShowCopyResult("Err", originalText);
+                }
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger?.Error($"Error copying node attributes: {ex.Message}");
+            Application.Invoke(() => ShowCopyResult("Err", originalText));
+        }
+    }
+
+    /// <summary>
+    /// Shows a temporary result on the copy button, then reverts to original text.
+    /// </summary>
+    private void ShowCopyResult(string result, string originalText)
+    {
+        _copyButton.Text = result;
+        Application.AddTimeout(TimeSpan.FromSeconds(1), () =>
+        {
+            _copyButton.Text = originalText;
+            _copyButton.Enabled = _currentNodeId != null;
+            return false;
+        });
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _copyOperationCts?.Cancel();
+            _copyOperationCts?.Dispose();
+            _copyButton.Accepting -= OnCopyClicked;
+            ThemeManager.ThemeChanged -= OnThemeChanged;
+        }
+        base.Dispose(disposing);
+    }
+}

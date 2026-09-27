@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Library</OutputType>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <NoWarn>$(NoWarn);WFO1000</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="System.Management" Version="11.0.0-preview.3.26207.106" />
+    <PackageReference Include="System.IO.Ports" Version="11.0.0-preview.3.26207.106" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.1" />
+    <PackageReference Include="System.Drawing.Common" Version="11.0.0-preview.3.26207.106" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Byoe.BasicFramework\FormAuthorize.cs" />
+    <Compile Remove="Byoe.BasicFramework\FormPopup.cs" />
+    <Compile Remove="Byoe.BasicFramework\SoftAnimation.cs" />
+    <Compile Remove="Byoe.LogNet\FormLogNetView.cs" />
+    <Compile Remove="Byoe.LogNet\FormLogNetView.Designer.cs" />
+    <Compile Remove="Byoe.LogNet\LogNetAnalysisControl.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{94E38DFF-614B-4cbd-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+</Project>

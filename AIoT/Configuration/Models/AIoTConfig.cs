@@ -1,0 +1,142 @@
+namespace AIoT.Configuration.Models;
+
+/// <summary>
+/// Root configuration model for AIoT configuration files (.aiot).
+/// </summary>
+public class AIoTConfig
+{
+    public string Version { get; set; } = "1.0";
+    public ServerConfig Server { get; set; } = new();
+    public SubscriptionSettings Settings { get; set; } = new();
+    public List<MonitoredNodeConfig> MonitoredNodes { get; set; } = new();
+    public ConfigMetadata Metadata { get; set; } = new();
+}
+
+/// <summary>
+/// OPC UA server connection settings.
+/// </summary>
+public class ServerConfig
+{
+    /// <summary>
+    /// 当前连接协议键，例如 opcua、modbus.tcp、siemens.s7。
+    /// </summary>
+    public string Protocol { get; set; } = "opcua";
+
+    /// <summary>
+    /// OPC UA server endpoint URL.
+    /// </summary>
+    public string EndpointUrl { get; set; } = string.Empty;
+
+    /// <summary>
+    /// 附加连接参数，用于保存不同协议的额外连接选项。
+    /// </summary>
+    public Dictionary<string, string> Extra { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Requested message security mode (for example: None, Sign, SignAndEncrypt).
+    /// <para>
+    /// Warning: As of version 1.0, this value is not currently used by the
+    /// connection logic. It is included in the configuration model to
+    /// document intended security settings and to support future versions
+    /// of AIoT that negotiate security based on this value.
+    /// </para>
+    /// </summary>
+    public string SecurityMode { get; set; } = "None";
+
+    /// <summary>
+    /// Requested security policy URI or shorthand (for example:
+    /// Basic256Sha256 or the full policy URI).
+    /// <para>
+    /// Warning: As of version 1.0, this value is not currently used by the
+    /// connection logic. It is provided for forward compatibility and
+    /// documentation of the desired security policy.
+    /// </para>
+    /// </summary>
+    public string? SecurityPolicy { get; set; }
+
+    /// <summary>
+    /// Authentication settings for the OPC UA server.
+    /// Supports Anonymous and UserName authentication types.
+    /// Passwords are never stored in config files; they are prompted at runtime.
+    /// </summary>
+    public AuthenticationConfig Authentication { get; set; } = new();
+}
+
+/// <summary>
+/// Authentication configuration for the OPC UA server.
+/// </summary>
+public class AuthenticationConfig
+{
+    /// <summary>
+    /// Authentication type: Anonymous, UserName, or Certificate.
+    /// </summary>
+    public string Type { get; set; } = "Anonymous";
+
+    /// <summary>
+    /// Username for UserName authentication (password is prompted at runtime for security).
+    /// </summary>
+    public string? Username { get; set; }
+}
+
+/// <summary>
+/// OPC UA subscription settings.
+/// </summary>
+public class SubscriptionSettings
+{
+    /// <summary>
+    /// Publishing interval (in milliseconds) for the OPC UA subscription.
+    /// Controls how often the server sends data-change notifications to the client.
+    /// This directly determines the data resolution for Scope, Trend Plot, and CSV recording:
+    /// a 1000 ms interval means roughly one data point per second per variable.
+    /// Valid range: 100-10000 ms (values outside this range will be clamped by SubscriptionManager).
+    /// </summary>
+    public int PublishingIntervalMs { get; set; } = 250;
+
+    /// <summary>
+    /// Default sampling interval (in milliseconds) for monitored variables.
+    /// <para>
+    /// Note: As of version 1.0, this setting is defined in the configuration model but is not yet
+    /// applied by the configuration loading logic. It is reserved for future use.
+    /// </para>
+    /// </summary>
+    public int SamplingIntervalMs { get; set; } = 250;
+
+    /// <summary>
+    /// Default queue size for monitored variables.
+    /// <para>
+    /// Note: As of version 1.0, this setting is defined in the configuration model but is not yet
+    /// applied by the configuration loading logic. It is reserved for future use.
+    /// </para>
+    /// </summary>
+    public uint QueueSize { get; set; } = 10;
+}
+
+/// <summary>
+/// Configuration for a single monitored node.
+/// </summary>
+public class MonitoredNodeConfig
+{
+    public string NodeId { get; set; } = string.Empty;
+    public string DisplayName { get; set; } = string.Empty;
+    public bool Enabled { get; set; } = true;
+    /// <summary>
+    /// 监控点位数据类型（如：bool、int、float、string等）。
+    /// </summary>
+    public string DataType { get; set; } = "string";
+
+    /// <summary>
+    /// 点位数据长度（适用于字符串、字节块、多寄存器等）。
+    /// </summary>
+    public int? DataLength { get; set; }
+}
+
+/// <summary>
+/// Configuration metadata for human context and tracking.
+/// </summary>
+public class ConfigMetadata
+{
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime LastModified { get; set; } = DateTime.UtcNow;
+}

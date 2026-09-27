@@ -1,0 +1,25 @@
+# Build output
+bin/
+obj/
+dist/
+AIoT/dist/
+publish/
+# IDE cache
+.vs/
+*.user
+*.suo
+*.dbmdl
+# Build artifacts
+*.exe
+*.pdb
+*.dll
+*.bin
+# Runtime data
+*.db
+*.db-shm
+*.db-wal
+artifacts/
+# NuGet
+packages/
+# Node (if any frontend)
+node_modules/

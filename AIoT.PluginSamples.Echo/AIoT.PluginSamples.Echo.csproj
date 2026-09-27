@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AIoT.PluginSamples.Echo</RootNamespace>
+    <AssemblyName>AIoT.PluginSamples.Echo</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AIoT\AIoT.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PluginOutputRoot>..\AIoT\bin\$(Configuration)\net10.0\plugins</PluginOutputRoot>
+  </PropertyGroup>
+
+  <Target Name="CopyPluginToAiotPluginsFolder" AfterTargets="Build">
+    <MakeDir Directories="$(PluginOutputRoot)" />
+
+    <ItemGroup>
+      <PluginArtifacts Include="$(TargetDir)$(AssemblyName).dll" />
+      <PluginArtifacts Include="$(TargetDir)$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginArtifacts)"
+          DestinationFolder="$(PluginOutputRoot)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

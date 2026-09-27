@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AIoT.PluginProtocols.Transport</RootNamespace>
+    <AssemblyName>AIoT.PluginProtocols.Transport</AssemblyName>
+    <PluginOutputRoot>..\AIoT\bin\$(Configuration)\net10.0\plugins</PluginOutputRoot>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AIoT\AIoT.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MQTTnet" Version="4.3.7.1207" GeneratePathProperty="true" />
+  </ItemGroup>
+
+  <Target Name="CopyPluginToAiotPluginsFolder" AfterTargets="Build">
+    <MakeDir Directories="$(PluginOutputRoot)" />
+
+    <ItemGroup>
+      <PluginArtifacts Include="$(TargetDir)$(AssemblyName).dll" />
+      <PluginArtifacts Include="$(TargetDir)$(AssemblyName).pdb" Condition="Exists('$(TargetDir)$(AssemblyName).pdb')" />
+      <PluginDependencyArtifacts Include="$(TargetDir)MQTTnet*.dll" />
+      <PluginDependencyArtifacts Include="$(PkgMQTTnet)\lib\net7.0\MQTTnet.dll" Condition="Exists('$(PkgMQTTnet)\lib\net7.0\MQTTnet.dll')" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginArtifacts)"
+          DestinationFolder="$(PluginOutputRoot)"
+          SkipUnchangedFiles="true" />
+
+    <Copy SourceFiles="@(PluginDependencyArtifacts)"
+          DestinationFolder="$(PluginOutputRoot)"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

@@ -1,0 +1,58 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AIoT</RootNamespace>
+    <AssemblyName>AIoT</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- Package metadata (Version is driven by MinVer from Git tags) -->
+    <Authors>Brett Kinny</Authors>
+    <Description>A lightweight terminal-based OPC UA client for browsing, monitoring, and subscribing to industrial automation data.</Description>
+
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>opcua;opc-ua;terminal;tui;industrial;automation;scada</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Publishing options -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AIoT.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Byoe\Byoe.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="2.0.0" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.5.378.65" />
+    <PackageReference Include="MQTTnet" Version="4.3.6.1152" />
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Tests/**" />
+    <Content Remove="Tests/**" />
+    <None Remove="Tests/**" />
+    <EmbeddedResource Remove="Tests/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Protocols\WebSocket\" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,36 @@
+name: smoke-cli
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore AIoT/AIoT.csproj
+
+      - name: Build (Release)
+        run: dotnet build AIoT/AIoT.csproj -c Release --no-restore
+
+      - name: Build plugin projects (Release)
+        run: |
+          dotnet build AIoT.PluginSamples.Echo/AIoT.PluginSamples.Echo.csproj -c Release
+          dotnet build AIoT.PluginProtocols.Transport/AIoT.PluginProtocols.Transport.csproj -c Release
+          dotnet build AIoT.PluginProtocols.Byoe/AIoT.PluginProtocols.Byoe.csproj -c Release
+
+      - name: CLI smoke (OPC UA only)
+        shell: pwsh
+        run: ./AIoT/scripts/smoke-cli.ps1 -Configuration Release -NoBuild -Strict -SkipModbusTcp -SkipModbusRtu -SkipSiemens -SkipMelsec -SkipOmron -SkipMqtt -SkipWebSocket

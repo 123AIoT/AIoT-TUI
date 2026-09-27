@@ -1,0 +1,78 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AIoT</RootNamespace>
+    <AssemblyName>AIoT</AssemblyName>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- Package metadata (Version is driven by MinVer from Git tags) -->
+    <Authors>Brett Kinny</Authors>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>opcua;opc-ua;terminal;tui;industrial;automation;scada</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+
+    <!-- Publishing options -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <AutoBuildProtocolPlugins Condition="'$(AutoBuildProtocolPlugins)' == ''">true</AutoBuildProtocolPlugins>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="AIoT.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Terminal.Gui" Version="2.0.0" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.5.378.65" />
+    <PackageReference Include="MinVer" Version="6.0.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Tests/**" />
+    <Content Remove="Tests/**" />
+    <None Remove="Tests/**" />
+    <EmbeddedResource Remove="Tests/**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Protocols\Byoe\" />
+    <Folder Include="Protocols\WebSocket\" />
+  </ItemGroup>
+
+  <Target Name="BuildProtocolPlugins"
+          AfterTargets="Build"
+          Condition="'$(AutoBuildProtocolPlugins)' == 'true' and '$(DesignTimeBuild)' != 'true'">
+    <MSBuild Projects="..\AIoT.PluginProtocols.Byoe\AIoT.PluginProtocols.Byoe.csproj;..\AIoT.PluginProtocols.Transport\AIoT.PluginProtocols.Transport.csproj"
+             Targets="Restore;Build"
+             Properties="Configuration=$(Configuration);AutoBuildProtocolPlugins=false" />
+  </Target>
+
+  <Target Name="SyncProtocolPluginsToHostOutput"
+          AfterTargets="BuildProtocolPlugins"
+          Condition="Exists('$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\plugins')">
+    <ItemGroup>
+      <BuiltPluginFiles Include="$(MSBuildProjectDirectory)\bin\$(Configuration)\$(TargetFramework)\plugins\*.*" />
+    </ItemGroup>
+
+    <MakeDir Directories="$(TargetDir)plugins" />
+
+    <Copy SourceFiles="@(BuiltPluginFiles)"
+          DestinationFolder="$(TargetDir)plugins"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

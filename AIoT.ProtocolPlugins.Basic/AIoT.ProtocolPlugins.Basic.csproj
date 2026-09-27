@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>AIoT.ProtocolPlugins.Basic</RootNamespace>
+    <AssemblyName>AIoT.ProtocolPlugins.Basic</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AIoT.ProtocolSdk\AIoT.ProtocolSdk.csproj" />
+    <ProjectReference Include="..\Byoe\Byoe.csproj" />
+    <PackageReference Include="MQTTnet" Version="4.3.6.1152" />
+  </ItemGroup>
+
+</Project>

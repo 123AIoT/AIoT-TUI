@@ -1,0 +1,40 @@
+# Build outputs
+bin/
+obj/
+
+# IDE
+.vs/
+.vscode/
+*.user
+*.suo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# NuGet packages (keep local packages)
+!packages/
+*.nupkg
+
+# Test results
+TestResults/
+
+# Node modules (test server)
+test-server/node_modules/
+
+# Logs
+*.log
+nul
+
+# Secrets and credentials
+*.env
+.env*
+*.pem
+*.key
+*.pfx
+*.p12
+credentials.json
+appsettings.*.json
+
+# Claude Code local settings
+.claude/settings.local.json

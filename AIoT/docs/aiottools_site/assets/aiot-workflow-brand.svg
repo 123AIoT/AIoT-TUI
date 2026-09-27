@@ -1,0 +1,54 @@
+<svg width="1200" height="760" viewBox="0 0 1200 760" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+	<linearGradient id="bg2" x1="120" y1="60" x2="1080" y2="700" gradientUnits="userSpaceOnUse">
+	  <stop stop-color="#0E1631"/>
+	  <stop offset="1" stop-color="#0A1121"/>
+	</linearGradient>
+	<linearGradient id="flow" x1="152" y1="260" x2="1040" y2="260" gradientUnits="userSpaceOnUse">
+	  <stop stop-color="#7AA2FF"/>
+	  <stop offset="1" stop-color="#62D0FF"/>
+	</linearGradient>
+  </defs>
+
+  <rect width="1200" height="760" rx="28" fill="url(#bg2)"/>
+  <text x="82" y="94" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="28" font-weight="800">AIoT 工作流示意</text>
+  <text x="82" y="132" fill="#A8B3D1" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="22">从连接、加点、监控到 AI 分析，统一在一套工具内完成。</text>
+
+  <rect x="82" y="180" width="220" height="150" rx="24" fill="#162145" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <text x="118" y="232" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="26" font-weight="700">1. Select Protocol</text>
+  <text x="118" y="272" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">OPC UA / MQTT /</text>
+  <text x="118" y="302" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">WebSocket / PLC</text>
+
+  <rect x="344" y="180" width="220" height="150" rx="24" fill="#162145" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <text x="380" y="232" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="26" font-weight="700">2. Connect</text>
+  <text x="380" y="272" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">Endpoint / Auth /</text>
+  <text x="380" y="302" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">Protocol Options</text>
+
+  <rect x="606" y="180" width="220" height="150" rx="24" fill="#162145" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <text x="644" y="232" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="26" font-weight="700">3. Add Points</text>
+  <text x="644" y="272" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">A / E / I</text>
+  <text x="644" y="302" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">Address / Type / Len</text>
+
+  <rect x="868" y="180" width="250" height="150" rx="24" fill="#162145" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <text x="906" y="232" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="26" font-weight="700">4. Observe / Act</text>
+  <text x="906" y="272" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">Monitor / Scope /</text>
+  <text x="906" y="302" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">Write / Export</text>
+
+  <path d="M302 255H344" stroke="url(#flow)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M564 255H606" stroke="url(#flow)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M826 255H868" stroke="url(#flow)" stroke-width="8" stroke-linecap="round"/>
+
+  <rect x="82" y="408" width="492" height="250" rx="24" fill="#111936" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <text x="114" y="456" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="28" font-weight="700">TUI for Engineers</text>
+  <text x="114" y="500" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">- Connection -> Connect 中选择协议并填写参数</text>
+  <text x="114" y="536" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">- Monitored Variables 中 A / E / I 维护点位</text>
+  <text x="114" y="572" fill="#E8EEFC" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="20">- 实时监控、趋势观察、现场写值、快速排障</text>
+  <text x="114" y="616" fill="#A8B3D1" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="18">更适合驻场调试、联调、验证与交付。</text>
+
+  <rect x="614" y="408" width="504" height="250" rx="24" fill="#111936" stroke="#FFFFFF" stroke-opacity="0.10"/>
+  <text x="646" y="456" fill="#62D0FF" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="28" font-weight="700">CLI for AI Agents</text>
+  <text x="646" y="504" fill="#DCEBFF" font-family="Consolas, monospace" font-size="18">aiot read opc.tcp://localhost:4840 "ns=2;s=Counter" --format json</text>
+  <text x="646" y="540" fill="#DCEBFF" font-family="Consolas, monospace" font-size="18">aiot write modbus.tcp://127.0.0.1:502 100 true --type bool</text>
+  <text x="646" y="576" fill="#DCEBFF" font-family="Consolas, monospace" font-size="18">aiot monitor ws://127.0.0.1:8080/ws --format ndjson</text>
+  <text x="646" y="620" fill="#A8B3D1" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="18">更适合 Agent、脚本、平台服务与自动化工作流。</text>
+</svg>

@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>aiot - 面向未来 AI 与 AIoT 的跨平台多协议终端工具</title>
+    <meta name="description" content="aiot 是一个面向未来 AI 与 AIoT 的跨平台多协议软件，支持 TUI 和 CLI，让 AI Agent 与现场实施工程师都能高效使用。" />
+    <style>
+        :root {
+            color-scheme: dark;
+            --bg: #0b1020;
+            --panel: #121936;
+            --panel-2: #182246;
+            --text: #e9eefc;
+            --muted: #a8b3d1;
+            --accent: #7aa2ff;
+            --accent-2: #62d0ff;
+            --border: rgba(255,255,255,.12);
+            --shadow: 0 20px 60px rgba(0,0,0,.35);
+            --max: 1180px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(98,208,255,.12), transparent 28%),
+                radial-gradient(circle at top left, rgba(122,162,255,.16), transparent 32%),
+                linear-gradient(180deg, #0a1021 0%, #0c1328 100%);
+            color: var(--text);
+            line-height: 1.65;
+        }
+
+        a { color: var(--accent-2); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        .container {
+            width: min(var(--max), calc(100% - 32px));
+            margin: 0 auto;
+        }
+
+        .nav {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(12px);
+            background: rgba(10,16,33,.72);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+        }
+
+        .brand {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+
+        .brand span { color: var(--accent-2); }
+
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+            font-size: 14px;
+        }
+
+        .hero {
+            padding: 72px 0 48px;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.15fr .85fr;
+            gap: 28px;
+            align-items: center;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            color: var(--accent-2);
+            background: rgba(98,208,255,.08);
+            font-size: 13px;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-size: clamp(34px, 5vw, 60px);
+            line-height: 1.08;
+            margin: 0 0 18px;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--muted);
+            margin: 0 0 24px;
+        }
+
+        .cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            color: var(--text);
+            font-weight: 600;
+            box-shadow: var(--shadow);
+        }
+
+        .button.primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            color: #081120;
+            border-color: transparent;
+        }
+
+        .hero-card,
+        .section-card,
+        .protocol-table,
+        .code-box,
+        .image-card,
+        .scenario-card,
+        .metric-card,
+        .feature-card {
+            background: linear-gradient(180deg, rgba(24,34,70,.92), rgba(18,25,54,.92));
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-card {
+            padding: 18px;
+        }
+
+        .hero-card img,
+        .image-card img {
+            width: 100%;
+            display: block;
+            border-radius: 12px;
+        }
+
+        .hero-card small,
+        .image-card small {
+            display: block;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        section {
+            padding: 22px 0 34px;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        h2 {
+            font-size: clamp(24px, 3vw, 34px);
+            margin: 0;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            max-width: 760px;
+        }
+
+        .metrics,
+        .features,
+        .scenarios,
+        .image-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .metrics {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .features {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .scenarios {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .image-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .metric-card,
+        .feature-card,
+        .scenario-card,
+        .image-card,
+        .section-card,
+        .protocol-table,
+        .code-box {
+            padding: 20px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--accent-2);
+        }
+
+        .muted { color: var(--muted); }
+
+        .feature-card h3,
+        .scenario-card h3,
+        .image-card h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        .protocol-table {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 780px;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            border-bottom: 1px solid rgba(255,255,255,.08);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--accent-2);
+            font-size: 14px;
+        }
+
+        code, pre {
+            font-family: Consolas, "SFMono-Regular", monospace;
+        }
+
+        .code-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .code-box h3 {
+            margin-top: 0;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #dbe9ff;
+            font-size: 14px;
+        }
+
+        .footer {
+            padding: 26px 0 40px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(122,162,255,.1);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-size: 13px;
+        }
+
+        .download-strip {
+            margin-top: 18px;
+            padding: 18px 20px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: linear-gradient(135deg, rgba(122,162,255,.16), rgba(98,208,255,.12));
+        }
+
+        .download-strip strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .download-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 12px;
+        }
+
+        @media (max-width: 980px) {
+            .hero-grid,
+            .metrics,
+            .features,
+            .scenarios,
+            .code-grid,
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-head {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="nav">
+        <div class="container nav-inner">
+            <div class="brand">a<span>iot</span></div>
+            <nav class="nav-links">
+                <a href="#overview">产品定位</a>
+                <a href="#protocols">协议能力</a>
+                <a href="#modes">TUI + CLI</a>
+                <a href="#examples">直接命令行</a>
+                <a href="#scenarios">使用场景</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div>
+                    <div class="eyebrow">面向未来 AI 与 AIoT 的跨平台多协议工具</div>
+                    <h1>让 <strong>AI Agent</strong> 与 <strong>现场实施工程师</strong><br />使用同一套工业连接能力</h1>
+                    <p>
+                        aiot 是一款跨平台、多协议、双交互形态的软件产品。它既提供面向人的 <strong>TUI 终端界面</strong>，
+                        也提供面向自动化与大模型编排的 <strong>CLI 命令行接口</strong>，帮助企业把工业数据接入未来 AI 工作流。
+                    </p>
+                    <div class="cta-row">
+                        <a class="button primary" href="https://tools.123aiot.com" target="_blank" rel="noreferrer">访问 AIoT 官方工具入口</a>
+                        <a class="button" href="#examples">查看 aiot 命令行示例</a>
+                        <a class="button" href="#modes">了解 TUI / CLI 双模式</a>
+                    </div>
+                    <div class="tag-row">
+                        <span class="tag">Windows / Linux / macOS</span>
+                        <span class="tag">OPC UA / MQTT / WebSocket</span>
+                        <span class="tag">Modbus / S7 / Melsec / Omron / Delta / Xinje</span>
+                        <span class="tag">AI Agent Friendly</span>
+                    </div>
+                    <div class="download-strip">
+                        <strong>Windows 下载</strong>
+                        <div>已提供可直接下载的 Windows 单文件主程序压缩包，内含 <code>AIoT.exe</code> 和运行所需 <code>plugins</code> 目录，下载解压后即可使用。</div>
+                        <div class="download-row">
+                            <a class="button primary" href="downloads/aiot-win-x64.zip">下载 Windows 版本（ZIP）</a>
+                            <span class="muted">文件：<code>docs/downloads/aiot-win-x64.zip</code></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-card">
+                    <img src="assets/aiot-hero-brand.svg" alt="AIoT 品牌版产品主视觉图" />
+                    <small>新版 AIoT 品牌主视觉：统一展示多协议、TUI、CLI、AI Agent 与现场工程师协同能力。</small>
+                </div>
+            </div>
+        </section>
+
+        <section id="overview">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>为什么 aiot 适合未来 AI 与 AIoT</h2>
+                        <div class="section-subtitle">
+                            传统工业工具往往不是为 AI 调用设计的：要么只有桌面 GUI，不利于自动化；要么只有脚本接口，不利于现场排障。
+                            aiot 通过统一协议抽象、统一终端体验、统一命令接口，把人和 AI 的使用方式对齐到一套产品里。
+                        </div>
+                    </div>
+                </div>
+                <div class="section-card" style="margin-bottom:18px;">
+                    <strong>官方产品入口：</strong>
+                    <a href="https://tools.123aiot.com" target="_blank" rel="noreferrer">https://tools.123aiot.com</a>
+                    <div style="margin-top:12px;">
+                        <strong>Windows 直接下载：</strong>
+                        <a href="downloads/aiot-win-x64.zip">downloads/aiot-win-x64.zip</a>
+                    </div>
+                </div>
+                <div class="metrics">
+                    <div class="metric-card">
+                        <div class="metric-value">双模式</div>
+                        <div>TUI + CLI 同时具备，兼顾人工调试与机器调用。</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">跨平台</div>
+                        <div>可发布为 Windows、Linux、macOS 可执行文件，便于边缘侧与运维侧落地。</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">多协议</div>
+                        <div>覆盖工业现场主流协议与消息协议，降低接入碎片化成本。</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value">AI 友好</div>
+                        <div>CLI 支持结构化输出，适合 Agent、脚本、CI、平台服务直接调用。</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="modes">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>一套产品，两种工作方式</h2>
+                        <div class="section-subtitle">
+                            现场工程师需要“看得见、改得动、排得快”；AI Agent 需要“可调用、可解析、可编排”。aiot 同时满足这两点。
+                        </div>
+                    </div>
+                </div>
+                <div class="features">
+                    <div class="feature-card">
+                        <h3>TUI：面向现场实施与调试</h3>
+                        <p class="muted">通过终端图形界面完成连接、选协议、增加点位、监控数值、写值与诊断。</p>
+                        <ul>
+                            <li>Connect 对话框内选择协议并配置连接参数</li>
+                            <li>在 Monitored Variables 中维护点位 A / E / I</li>
+                            <li>适合工程师驻场调试、巡检、联调、故障复现</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h3>CLI：面向 AI Agent 与自动化</h3>
+                        <p class="muted">通过统一的 `aiot` 命令完成读取、写入、监控、浏览，便于脚本和平台集成。</p>
+                        <ul>
+                            <li>支持 `read / write / monitor / browse`</li>
+                            <li>适合 AI Agent、批处理、CI、远程运维</li>
+                            <li>可输出 text / json / ndjson</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <h3>统一协议抽象</h3>
+                        <p class="muted">无论是人还是 AI，看到的都是一致的协议名称、地址语义、连接参数与数据类型能力。</p>
+                        <ul>
+                            <li>减少培训成本</li>
+                            <li>减少脚本与人工流程割裂</li>
+                            <li>有利于未来增加更多协议插件</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="protocols">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>多协议能力矩阵</h2>
+                        <div class="section-subtitle">
+                            aiot 不只是一款 OPC UA 工具，而是一个面向 AIoT 场景的多协议接入终端。
+                        </div>
+                    </div>
+                </div>
+                <div class="protocol-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>协议</th>
+                                <th>典型用途</th>
+                                <th>CLI 协议键</th>
+                                <th>能力概览</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>OPC UA</td>
+                                <td>标准工业互联、浏览地址空间、订阅变量</td>
+                                <td><code>opcua</code></td>
+                                <td>读 / 写 / 浏览 / 原生订阅</td>
+                            </tr>
+                            <tr>
+                                <td>MQTT</td>
+                                <td>边缘消息、轻量遥测、AI 平台事件接入</td>
+                                <td><code>mqtt</code></td>
+                                <td>读缓存 / 发布 / 监控 Topic 流</td>
+                            </tr>
+                            <tr>
+                                <td>WebSocket</td>
+                                <td>Web 实时通道、边缘服务对接</td>
+                                <td><code>websocket</code></td>
+                                <td>读缓存 / 文本写入 / 监控消息流</td>
+                            </tr>
+                            <tr>
+                                <td>Modbus TCP / RTU</td>
+                                <td>PLC / 现场设备寄存器与线圈访问</td>
+                                <td><code>modbus.tcp</code> / <code>modbus.rtu</code></td>
+                                <td>类型化读写 / 轮询监控</td>
+                            </tr>
+                            <tr>
+                                <td>Siemens S7</td>
+                                <td>西门子 PLC 现场调试</td>
+                                <td><code>siemens.s7</code></td>
+                                <td>类型化读写 / 轮询监控</td>
+                            </tr>
+                            <tr>
+                                <td>Melsec / Omron / Delta / Xinje</td>
+                                <td>多品牌 PLC 场景统一接入</td>
+                                <td><code>melsec</code> / <code>omron</code> / <code>delta</code> / <code>xinje</code></td>
+                                <td>类型化读写 / 轮询监控</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>直接用 aiot 命令行，不依赖源码项目路径</h2>
+                        <div class="section-subtitle">
+                            面向部署与交付时，推荐将 aiot 发布为可执行文件后直接使用，例如 Windows 下的 <code>aiot.exe</code>，
+                            Linux/macOS 下的 <code>aiot</code>。以下示例全部采用最终用户视角的直接命令形式。
+                        </div>
+                    </div>
+                </div>
+                <div class="code-grid">
+                    <div class="code-box">
+                        <h3>OPC UA 读取</h3>
+                        <pre>aiot read opc.tcp://localhost:4840 "ns=2;s=Counter" --format json</pre>
+                    </div>
+                    <div class="code-box">
+                        <h3>Modbus TCP 写入</h3>
+                        <pre>aiot write modbus.tcp://127.0.0.1:502 100 true --protocol modbus.tcp --type bool --station 1 --format json</pre>
+                    </div>
+                    <div class="code-box">
+                        <h3>Siemens S7 读取</h3>
+                        <pre>aiot read s7://192.168.0.10:102?plc=s1200&amp;rack=0&amp;slot=1 DB1.0 --protocol siemens.s7 --type int --format json</pre>
+                    </div>
+                    <div class="code-box">
+                        <h3>MQTT 发布</h3>
+                        <pre>aiot write mqtt://127.0.0.1:1883 "" 23.5 --protocol mqtt --topic sensors/temp --qos 1 --retain --format json</pre>
+                    </div>
+                    <div class="code-box">
+                        <h3>WebSocket 监控</h3>
+                        <pre>aiot monitor ws://127.0.0.1:8080/ws --protocol websocket --ws-subprotocol telemetry --ws-header "X-Site:line1;X-Role:agent" --ws-address "$last" --count 3 --format ndjson</pre>
+                    </div>
+                    <div class="code-box">
+                        <h3>适合 AI Agent 的原因</h3>
+                        <pre>1. 命令结构稳定
+2. 协议参数显式
+3. 支持 JSON / NDJSON
+4. 易于被工作流、脚本、Agent 平台直接调用</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="scenarios">
+            <div class="container">
+                <div class="section-head">
+                    <div>
+                        <h2>典型使用场景</h2>
+                        <div class="section-subtitle">
+                            aiot 的价值不只是“能连设备”，而是把工业连接能力变成能同时被人和 AI 消费的标准入口。
+                        </div>
+                    </div>
+                </div>
+                <div class="scenarios">
+                    <div class="scenario-card">
+                        <h3>AI Agent 调用工业现场数据</h3>
+                        <p>在边缘网关、平台服务、Copilot、Agent 工作流中直接调用 `aiot`，获取设备数据、写入控制指令、做巡检采集或状态分析。</p>
+                        <ul>
+                            <li>适合数据采集、告警核验、自动诊断、状态快照</li>
+                            <li>支持 JSON / NDJSON，便于模型和程序解析</li>
+                        </ul>
+                    </div>
+                    <div class="scenario-card">
+                        <h3>现场工程师快速实施与排障</h3>
+                        <p>工程师使用 TUI 直接连接设备，选择协议、填写连接参数、增加监控点位、在线写值，快速验证现场问题。</p>
+                        <ul>
+                            <li>适合调试、联调、试运行、故障复现</li>
+                            <li>不依赖笨重桌面软件，终端环境即可工作</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container image-grid">
+                <div class="image-card">
+                    <h3>AIoT 品牌版主界面示意</h3>
+                    <img src="assets/aiot-hero-brand.svg" alt="AIoT 品牌版主视觉图" />
+                    <small>连接对话框内选择协议，Monitored Variables 中执行 A / E / I 点位维护，符合最新版产品定位。</small>
+                </div>
+                <div class="image-card">
+                    <h3>AIoT 工作流示意</h3>
+                    <img src="assets/aiot-workflow-brand.svg" alt="AIoT 连接、加点、监控与 AI 工作流示意图" />
+                    <small>用新的 SVG 示意图替换旧截图，统一展示协议选择、连接、点位维护与 AI 自动化调用链路。</small>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <div class="container section-card">
+                <div class="section-head">
+                    <div>
+                        <h2>一句话总结</h2>
+                        <div class="section-subtitle">
+                            aiot 是一款真正面向未来工业智能场景的软件产品：它把多协议接入、跨平台终端能力、工程实施体验与 AI Agent 自动化调用统一到了同一套工具中。
+                        </div>
+                    </div>
+                </div>
+                <div class="tag-row">
+                    <span class="tag">多协议</span>
+                    <span class="tag">跨平台</span>
+                    <span class="tag">TUI + CLI</span>
+                    <span class="tag">AI Agent 可调用</span>
+                    <span class="tag">现场工程师可直接使用</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            本页面位于 <code>docs/aiot-product-intro.zh-CN.html</code>，可直接在浏览器中打开，用于产品介绍、内部演示、客户沟通或方案材料引用。官方入口：
+            <a href="https://tools.123aiot.com" target="_blank" rel="noreferrer">https://tools.123aiot.com</a>
+        </div>
+    </footer>
+</body>
+</html>

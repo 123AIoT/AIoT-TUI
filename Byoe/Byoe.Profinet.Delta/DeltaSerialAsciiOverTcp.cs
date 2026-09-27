@@ -1,0 +1,101 @@
+using System.Threading.Tasks;
+using Byoe.Core;
+using Byoe.ModBus;
+using Byoe.Profinet.Delta.Helper;
+using Byoe.Reflection;
+
+namespace Byoe.Profinet.Delta
+{
+	/// <summary>
+	/// 台达PLC的串口通讯类，基于Modbus-Ascii协议开发，使用串口转网口的透传实现，按照台达的地址进行实现。<br />
+	/// The serial communication class of Delta PLC is developed based on the Modbus-Ascii protocol and implemented according to Delta's address.
+	/// </summary>
+	/// <remarks>
+	/// 适用于DVP-ES/EX/EC/SS型号，DVP-SA/SC/SX/EH型号以及AS300型号，地址参考API文档，同时地址可以携带站号信息，举例：[s=2;D100],[s=3;M100]，可以动态修改当前报文的站号信息。<br />
+	/// Suitable for DVP-ES/EX/EC/SS models, DVP-SA/SC/SX/EH models and AS300 model, the address refers to the API document, and the address can carry station number information,
+	/// for example: [s=2;D100],[s= 3;M100], you can dynamically modify the station number information of the current message.
+	/// </remarks>
+	public class DeltaSerialAsciiOverTcp : ModbusAsciiOverTcp, IDelta, IReadWriteDevice, IReadWriteNet
+	{
+		/// <inheritdoc cref="P:Byoe.Profinet.Delta.IDelta.Series" />
+		public DeltaSeries Series { get; set; } = DeltaSeries.Dvp;
+
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaSerial.#ctor" />
+		public DeltaSerialAsciiOverTcp()
+		{
+			base.ByteTransform.DataFormat = DataFormat.CDAB;
+		}
+
+		/// <inheritdoc cref="M:Byoe.ModBus.ModbusTcpNet.#ctor(System.String,System.Int32,System.Byte)" />
+		public DeltaSerialAsciiOverTcp(string ipAddress, int port = 502, byte station = 1)
+			: base(ipAddress, port, station)
+		{
+			base.ByteTransform.DataFormat = DataFormat.CDAB;
+		}
+
+		/// <inheritdoc />
+		public override OperateResult<string> TranslateToModbusAddress(string address, byte modbusCode)
+		{
+			return DeltaHelper.TranslateToModbusAddress(this, address, modbusCode);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaTcpNet.ReadBool(System.String,System.UInt16)" />
+		[ByoeMqttApi("ReadBoolArray", "")]
+		public override OperateResult<bool[]> ReadBool(string address, ushort length)
+		{
+			return DeltaHelper.ReadBool(this, base.ReadBool, address, length);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaTcpNet.Write(System.String,System.Boolean[])" />
+		[ByoeMqttApi("WriteBoolArray", "")]
+		public override OperateResult Write(string address, bool[] values)
+		{
+			return DeltaHelper.Write(this, base.Write, address, values);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaTcpNet.Read(System.String,System.UInt16)" />
+		[ByoeMqttApi("ReadByteArray", "")]
+		public override OperateResult<byte[]> Read(string address, ushort length)
+		{
+			return DeltaHelper.Read(this, base.Read, address, length);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaTcpNet.Write(System.String,System.Byte[])" />
+		[ByoeMqttApi("WriteByteArray", "")]
+		public override OperateResult Write(string address, byte[] value)
+		{
+			return DeltaHelper.Write(this, base.Write, address, value);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaSerialAsciiOverTcp.ReadBool(System.String,System.UInt16)" />
+		public override async Task<OperateResult<bool[]>> ReadBoolAsync(string address, ushort length)
+		{
+			return await DeltaHelper.ReadBoolAsync(this, (string address, ushort length) => base.ReadBoolAsync(address, length), address, length);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaSerialAsciiOverTcp.Write(System.String,System.Boolean[])" />
+		public override async Task<OperateResult> WriteAsync(string address, bool[] values)
+		{
+			return await DeltaHelper.WriteAsync(this, (string address, bool[] values) => base.WriteAsync(address, values), address, values);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaSerialAsciiOverTcp.Read(System.String,System.UInt16)" />
+		public override async Task<OperateResult<byte[]>> ReadAsync(string address, ushort length)
+		{
+			return await DeltaHelper.ReadAsync(this, (string address, ushort length) => base.ReadAsync(address, length), address, length);
+		}
+
+		/// <inheritdoc cref="M:Byoe.Profinet.Delta.DeltaSerialAsciiOverTcp.Write(System.String,System.Byte[])" />
+		public override async Task<OperateResult> WriteAsync(string address, byte[] value)
+		{
+			return await DeltaHelper.WriteAsync(this, (string address, byte[] value) => base.WriteAsync(address, value), address, value);
+		}
+
+		/// <inheritdoc />
+		public override string ToString()
+		{
+			return $"DeltaSerialAsciiOverTcp[{IpAddress}:{Port}]";
+		}
+	}
+}
